@@ -1,26 +1,67 @@
 package com.project.code.Service;
 
+import com.project.code.Model.Inventory;
+import com.project.code.Model.Product;
+import com.project.code.Repo.InventoryRepository;
+import com.project.code.Repo.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ServiceClass {
-    
-// 1. **validateInventory Method**:
-//    - Checks if an inventory record exists for a given product and store combination.
-//    - Parameters: `Inventory inventory`
-//    - Return Type: `boolean` (Returns `false` if inventory exists, otherwise `true`)
 
-// 2. **validateProduct Method**:
-//    - Checks if a product exists by its name.
-//    - Parameters: `Product product`
-//    - Return Type: `boolean` (Returns `false` if a product with the same name exists, otherwise `true`)
+    private final ProductRepository productRepository;
+    private final InventoryRepository inventoryRepository;
 
-// 3. **ValidateProductId Method**:
-//    - Checks if a product exists by its ID.
-//    - Parameters: `long id`
-//    - Return Type: `boolean` (Returns `false` if the product does not exist with the given ID, otherwise `true`)
+    @Autowired
+    public ServiceClass(ProductRepository productRepository, 
+                      InventoryRepository inventoryRepository) {
+        this.productRepository = productRepository;
+        this.inventoryRepository = inventoryRepository;
+    }
 
-// 4. **getInventoryId Method**:
-//    - Fetches the inventory record for a given product and store combination.
-//    - Parameters: `Inventory inventory`
-//    - Return Type: `Inventory` (Returns the inventory record for the product-store combination)
+    /**
+     * Validates if an inventory record exists for a product-store combination
+     * @param inventory The inventory to validate
+     * @return false if inventory exists, true otherwise
+     */
+    public boolean validateInventory(Inventory inventory) {
+        Inventory existingInventory = inventoryRepository.findByProductIdandStoreId(
+            inventory.getProduct().getId(), 
+            inventory.getStore().getId()
+        );
+        return existingInventory == null;
+    }
 
+    /**
+     * Validates if a product with the same name already exists
+     * @param product The product to validate
+     * @return false if product with same name exists, true otherwise
+     */
+    public boolean validateProduct(Product product) {
+        Product existingProduct = productRepository.findByName(product.getName());
+        return existingProduct == null;
+    }
+
+    /**
+     * Validates if a product exists by ID
+     * @param id The product ID to validate
+     * @return true if product exists, false otherwise
+     */
+    public boolean validateProductId(long id) {
+        Product product = productRepository.findById(id);
+        return product != null;
+    }
+
+    /**
+     * Retrieves inventory record for a product-store combination
+     * @param inventory The inventory to search for
+     * @return The found inventory record or null if not found
+     */
+    public Inventory getInventoryId(Inventory inventory) {
+        return inventoryRepository.findByProductIdandStoreId(
+            inventory.getProduct().getId(),
+            inventory.getStore().getId()
+        );
+    }
 }
