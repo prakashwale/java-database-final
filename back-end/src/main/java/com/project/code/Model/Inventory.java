@@ -1,49 +1,67 @@
-package com.project.code.Model;
+package com.project.code.Model;                           // Package declaration, keeps the class inside the Model package
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // Prevents circular JSON serialization for bidirectional relations
+import jakarta.persistence.*;                              // JPA annotations for entity mapping
 
+@Entity                                                    // Marks this class as a JPA entity mapped to a table named 'inventory' by default
 public class Inventory {
-   // 1. Add 'id' field:
-//    - Type: private long 
-//    - This field will represent the unique identifier for the inventory entry.
-//    - Use @Id to mark it as the primary key.
-//    - Use @GeneratedValue(strategy = GenerationType.IDENTITY) to auto-increment it.
 
-// 2. Add 'product' field:
-//    - Type: private Product
-//    - This field will represent the product associated with the inventory entry.
-//    - Use @ManyToOne to establish a many-to-one relationship with the Product entity.
+    @Id                                                   // Declares primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   // Uses auto increment identity column
+    private Long id;                                      // Unique identifier for the inventory entry
 
-// 3. Add 'store' field:
-//    - Type: private Store
-//    - This field will represent the store where the inventory is located.
-//    - Use @ManyToOne to establish a many-to-one relationship with the Store entity.
+    @ManyToOne                                            // Many inventory rows can reference one product
+    @JoinColumn(name = "product_id")                      // Foreign key column to Product
+    @JsonBackReference("inventory-product")               // Breaks JSON cycle on the product side
+    private Product product;                              // The associated product
 
-// 4. Add 'stockLevel' field:
-//    - Type: private Integer
-//    - This field will represent the current stock level of the product at the store.
+    @ManyToOne                                            // Many inventory rows can reference one store
+    @JoinColumn(name = "store_id")                        // Foreign key column to Store
+    @JsonBackReference("inventory-store")                 // Breaks JSON cycle on the store side
+    private Store store;                                  // The store where this inventory is located
 
-// 5. Add relationships:
-//    - **Product Relationship**: Use @ManyToOne to link this inventory entry to a product.
-//    - **Store Relationship**: Use @ManyToOne to link this inventory entry to a store.
-//    - Use @JsonBackReference("inventory-product") to prevent circular references during JSON serialization for the product field.
-//    - Use @JsonBackReference("inventory-store") to prevent circular references during JSON serialization for the store field.
+    private Integer stockLevel;                           // Current stock level at the store
 
-// 6. Use @JoinColumn for foreign key associations:
-//    - For the 'product' field, use @JoinColumn(name = "product_id") to specify the foreign key column.
-//    - For the 'store' field, use @JoinColumn(name = "store_id") to specify the foreign key column.
+    public Inventory() {                                  // No args constructor required by JPA
+    }
 
-// 7. Create a constructor:
-//    - Add a constructor that takes a Product, Store, and Integer stockLevel to initialize the Inventory object.
+    public Inventory(Product product,                     // Convenience constructor to initialize mandatory fields
+                     Store store,
+                     Integer stockLevel) {
+        this.product = product;                           // Set product
+        this.store = store;                               // Set store
+        this.stockLevel = stockLevel;                     // Set initial stock
+    }
 
-// 8. Add @Entity annotation:
-//    - Use @Entity above the class definition to mark it as a JPA entity that will be mapped to a database table.
+    public Long getId() {                                 // Getter for id
+        return id;
+    }
 
-// 9. Add Getters and Setters:
-//    - Add getters and setters for 'id', 'product', 'store', and 'stockLevel' fields.
-//    - Example: public Long getId(), public void setId(Long id)
-//    - Example: public Product getProduct(), public void setProduct(Product product)
-//    - Example: public Store getStore(), public void setStore(Store store)
-//    - Example: public Integer getStockLevel(), public void setStockLevel(Integer stockLevel)
+    public void setId(Long id) {                          // Setter for id
+        this.id = id;
+    }
 
+    public Product getProduct() {                         // Getter for product
+        return product;
+    }
+
+    public void setProduct(Product product) {             // Setter for product
+        this.product = product;
+    }
+
+    public Store getStore() {                             // Getter for store
+        return store;
+    }
+
+    public void setStore(Store store) {                   // Setter for store
+        this.store = store;
+    }
+
+    public Integer getStockLevel() {                      // Getter for stockLevel
+        return stockLevel;
+    }
+
+    public void setStockLevel(Integer stockLevel) {       // Setter for stockLevel
+        this.stockLevel = stockLevel;
+    }
 }
-
